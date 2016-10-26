@@ -1,0 +1,107 @@
+enum eTest
+{
+	HELLO = 0
+	BYE = 1
+}
+
+object Cost
+{
+	int mana
+}
+
+enum eCenter
+{
+	SELF = 0
+	TARGET = 1
+}
+
+enum eFaction
+{
+	SELF = 0
+	ENEMY = 1
+}
+
+enum eTargetType
+{
+	LOCATION = 0
+	UNIT = 2
+}
+
+enum eSortFunction
+{
+	DISTANCE
+}
+
+enum eSortOrder
+{
+	ASCENDING
+	DESCENDING
+	RANDOM
+}
+
+object Step
+{
+}
+
+object Target : Step
+{
+	eCenter center = SELF
+	ref Target target = 0
+	ufloat radius = 4.0
+	eFaction faction = ENEMY
+	eTargetType type = LOCATION
+	uint count = +inf
+	eSortFunction sortFunction = DISTANCE
+	eSortOrder sortOrder = ASCENDING
+}
+
+object Effect : Step
+{
+	float start = 0.0
+	uint reference = 0
+	float duration = -1.0
+}
+
+object Move : Effect
+{
+	nonzero ref Target target = 0 
+}
+
+object PlaySequence : Step
+{
+	string file = ""
+	ref Target target = 0
+	float duration = -1.0
+	eCenter center = SELF
+}
+
+object DealDamage : Step
+{
+	nonzero ref Target target = 0
+	int amount = 0
+}
+
+enum eBranchOrder
+{
+	DECLARATION
+	RANDOM
+}
+
+object Action
+object Branch
+{
+	nonzero ref Action action = 0
+	expression condition = true
+	uint weight = 1
+}
+
+object Action
+{
+	Cost cost
+	expression condition = true
+	float cooldown = 0.0
+	ref Step conditionSteps[]
+	ref Step steps[]
+	eBranchOrder branchOrder = DECLARATION
+	Branch branches[]
+}

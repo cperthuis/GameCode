@@ -1,0 +1,98 @@
+Action ThunderAttack {
+	cost = {
+		mana = 30
+	}
+	cooldown = 10.0
+	
+	Target target0 {
+		center = SELF
+		radius = 4.0
+		faction = ENEMY
+		type = LOCATION
+		count = 1
+		sortFunction = DISTANCE
+		sortOrder = ASCENDING
+	}
+	conditionSteps += target0
+	condition = # target0 != 0 #
+	
+	steps += PlaySequence	{
+		file = "effects/creature/meteorCast.fx"
+		center = SELF
+		duration = 2.5
+	}
+	Target target1 {
+		center = TARGET
+		radius = 5.0
+		faction = ENEMY
+		type = LOCATION
+		count = 1
+		sortFunction = DISTANCE
+		sortOrder = ASCENDING
+	}
+	steps += target1
+	steps += PlaySequence	PlayEffect {
+		file = "effects/creature/meteorGroundTarget.fx"
+		center = TARGET
+		target = target1
+		duration = 2.0
+	}
+	steps += PlaySequence	{
+		center = TARGET
+		target = target0
+		file = "effects/creature/meteorFall.fx"
+	}
+	Target target2 { 
+		center = TARGET
+		target = target1
+		radius = 1.0
+		faction = ENEMY
+		type = UNIT
+		count = +inf
+	}
+	steps += target2 
+	steps += DealDamage {
+		target = target2
+		amount = 10
+	}
+}
+
+Action ThunderAttack1 {
+	cost = {
+		mana = 30
+	}
+	cooldown = 10.0
+}
+
+Action ThunderAttack2 {
+	cost = {
+		mana = 30
+	}
+	cooldown = 10.0
+}
+
+Action SeekTarget {
+	Target target0 {
+		center = SELF
+		radius = 20.0
+		faction = ENEMY
+		type = LOCATION
+		count = 1
+		sortFunction = DISTANCE
+		sortOrder = ASCENDING
+	}	
+	steps += target0
+	steps += Move {
+		target = target0
+	}
+	
+	branchOrder = RANDOM
+	branches += { action = ThunderAttack } // will check if action ThunderAttack is valid ( Cost, Cooldown, Condition ) before adding it to the list of possible branches
+	branches += { action = ThunderAttack } // beep
+	branches += {
+				action = ThunderAttack
+				condition = "Global.NightTime == 0"
+				} // will check if action is valid and if global variable NightTime is 0
+	branches += { action = ThunderAttack1 , condition = "Global.NightTime == 0" } // will check if action is valid and if global variable NightTime is 0
+	branches += { action = ThunderAttack2, condition = "Global.NightTime == 1" }
+}

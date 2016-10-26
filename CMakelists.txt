@@ -1,0 +1,341 @@
+cmake_minimum_required (VERSION 3.5)
+
+macro(make_absolute files)
+	set (_out)
+	foreach(file ${${files}})
+		get_filename_component(file_abs ${file} ABSOLUTE)	
+		LIST(APPEND _out ${file_abs})
+	endforeach()
+	set (${files} ${_out})
+endmacro()
+
+macro(make_definitions definitions)
+	set (_out)
+	foreach(definition ${${definitions}})
+		LIST(APPEND _out -D${definition})
+	endforeach()
+	set (${definitions} ${_out})
+endmacro()
+
+macro(get_generated_output_path GeneratedOutputPath)
+	set (${GeneratedOutputPath} ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/generated/)
+endmacro()
+
+set (ROOT ./)
+set (SRC ${ROOT}src/)
+set (PUB ${ROOT}bin/)
+set (PUB_ABS ${PUB})
+make_absolute(PUB_ABS)
+
+set (EXTERNAL ${SRC}external/)
+set (SAMPLES ${ROOT}samples/)
+set (TEST ${ROOT}test/)
+
+
+set (LEMON_EXE ${EXTERNAL}lemon/bin/lemon.exe)
+make_absolute(LEMON_EXE)
+set (LEMON_TEMPLATE ${EXTERNAL}lemon/src/lemon/lempar.c)
+make_absolute(LEMON_TEMPLATE)
+
+set (FLEX_EXE ${EXTERNAL}flex/bin/win_flex.exe)
+make_absolute(FLEX_EXE)
+
+macro(set_output_dir OUTPUTDIR)
+	set (OUTPUTDIR_ABS ${OUTPUTDIR})
+	make_absolute(OUTPUTDIR_ABS)
+	set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUTDIR_ABS})
+	foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
+		string( TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG )
+		set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${OUTPUTDIR_ABS} )
+	endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
+endmacro()
+
+set_output_dir(${PUB_ABS})
+
+macro(add_lemon_command LemonPath LemonTemplate GeneratedOutputPath GrammarFile)
+	GET_FILENAME_COMPONENT(GrammarFilename ${GrammarFile} NAME_WE)
+	GET_FILENAME_COMPONENT(GrammarDir ${GrammarFile} DIRECTORY)
+	GET_FILENAME_COMPONENT(GrammarFullpath ${GrammarFile} ABSOLUTE)
+
+	set (LemonOutputFilepath ${GeneratedOutputPath}${GrammarDir}/${GrammarFilename}_lemon.c)
+	make_absolute(LemonOutputFilepath)
+	
+	add_custom_command(OUTPUT ${LemonOutputFilepath}
+		#COMMAND ${LemonPath} -s -o ${LemonOutputFilepath} ${GrammarFullpath} 
+		COMMAND ${LemonPath} -T${LemonTemplate} -s ${GrammarFullpath} 
+		MAIN_DEPENDENCY ${GrammarFullpath}
+		COMMENT "Compiling Lemon Grammar..."
+	)
+endmacro(add_lemon_command LemonPath)
+
+macro(add_flex_command FlexPath GeneratedOutputPath LexerFile)
+	GET_FILENAME_COMPONENT(LexerFilename ${LexerFile} NAME_WE)
+	GET_FILENAME_COMPONENT(LexerDir ${LexerFile} DIRECTORY)
+	GET_FILENAME_COMPONENT(LexerFullpath ${LexerFile} ABSOLUTE)
+
+	set (FlexOutputFilepath ${GeneratedOutputPath}${LexerDir}/${LexerFilename}scanner.yy.cpp)
+	make_absolute(FlexOutputFilepath)
+	set (FlexOutputHeaderFilepath ${GeneratedOutputPath}${LexerDir}/${LexerFilename}scanner.yy.h)
+	make_absolute(FlexOutputHeaderFilepath)
+	
+	add_custom_command(OUTPUT ${FlexOutputFilepath}
+		COMMAND ${FlexPath} --outfile=${FlexOutputFilepath} --header-file=${FlexOutputHeaderFilepath} ${LexerFullpath}
+		MAIN_DEPENDENCY ${LexerFullpath}
+		COMMENT "Compiling Flex Lexer..."
+	)
+endmacro(add_flex_command FlexPath)
+
+
+#----------------------------------------------------
+macro(add_gamemeta_command GamecodeCompilerPath GeneratedOutputPath metapath)
+	GET_FILENAME_COMPONENT(metafullpath ${metapath} ABSOLUTE)
+	GET_FILENAME_COMPONENT(metadir ${metapath} DIRECTORY)
+	
+	set (codeout ${metadir}/codeout)
+	make_absolute(codeout)
+
+	set (outputPath ${codeout}/gcAll.h)
+	make_absolute(outputPath)
+	
+	add_custom_command(OUTPUT ${outputPath}
+		COMMAND ${GamecodeCompilerPath} -m ${metafullpath} -c ${codeout}
+		MAIN_DEPENDENCY ${metafullpath}
+		COMMENT "Compiling Gamecode meta ${metafullpath}..."
+	)
+endmacro(add_gamemeta_command)
+
+macro(add_gamecode_command GamecodeCompilerPath GeneratedOutputPath metapath filepath)
+	GET_FILENAME_COMPONENT(filename ${filepath} NAME_WE)
+	GET_FILENAME_COMPONENT(dir ${filepath} DIRECTORY)
+	GET_FILENAME_COMPONENT(fullpath ${filepath} ABSOLUTE)
+	
+	GET_FILENAME_COMPONENT(metafullpath ${metapath} ABSOLUTE)
+	GET_FILENAME_COMPONENT(metadir ${metapath} DIRECTORY)
+	set (codeout ${metadir}/codeout)
+	make_absolute(codeout)
+	set (dataout ${metadir}/dataout)
+	make_absolute(dataout)
+
+	set (outputPath ${dataout}/${filename}.gcb)
+	make_absolute(outputPath)
+	
+	add_custom_command(OUTPUT ${outputPath}
+		COMMAND ${GamecodeCompilerPath} -m ${metafullpath} -d ${dataout} ${fullpath}
+		MAIN_DEPENDENCY ${fullpath}
+		COMMENT "Compiling Gamecode file ${filename}.gcb..."
+	)
+endmacro(add_gamecode_command)
+
+project (gamecode)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+set(SRC_INCLUDES ${SRC})
+make_absolute(SRC_INCLUDES)
+
+set(GC_INCLUDES ${ROOT}include)
+make_absolute(GC_INCLUDES)
+
+set(PROJ shared)
+
+set(PROJSRC ${SRC}shared/)
+
+set (DEFINITIONS
+	_CRT_SECURE_NO_WARNINGS
+)
+make_definitions(DEFINITIONS)
+
+set (INCLUDES
+)
+
+set (SRC_FILES
+	${PROJSRC}allocator.h
+	${PROJSRC}allocator.cpp
+)
+
+add_library (${PROJ} ${SRC_FILES})
+
+set_target_properties(${PROJ} PROPERTIES COMPILE_FLAGS ${DEFINITIONS})
+set_target_properties(${PROJ} PROPERTIES INCLUDE_DIRECTORIES "${INCLUDES}")
+set_target_properties(${PROJ} PROPERTIES DEBUG_POSTFIX "_d" )
+set_target_properties(${PROJ} PROPERTIES RELEASE_POSTFIX "_r" )
+set_target_properties(${PROJ} PROPERTIES MINSIZEREL_POSTFIX "_s" )
+set_target_properties(${PROJ} PROPERTIES RELWITHDEBINFO_POSTFIX "" )
+set_target_properties(${PROJ} PROPERTIES FOLDER "src")
+
+set(PROJ gamemeta)
+
+#only defines this here, since sometimes cmake seems to only deifne CMAKE_CFG_INTDIR after the first library is added
+get_generated_output_path(GENERATED_FILES_PATH)
+set (GENERATED_FILES_INCLUDES ${GENERATED_FILES_PATH}src/)
+make_absolute(GENERATED_FILES_INCLUDES)
+
+set(PROJSRC ${SRC}gamemeta/)
+
+set (GAMEMETA_INCLUDES ${SRC}gamemeta)
+make_absolute(GAMEMETA_INCLUDES)
+
+
+set (DEFINITIONS
+	_CRT_SECURE_NO_WARNINGS
+)
+make_definitions(DEFINITIONS)
+
+set (INCLUDES
+	${GENERATED_FILES_INCLUDES}
+	${GAMEMETA_INCLUDES}
+	${SRC_INCLUDES}
+	${GC_INCLUDES}
+)
+set (SRC_FILES
+	${PROJSRC}gamemeta.cpp 
+	${PROJSRC}generated.cpp 
+	${PROJSRC}generated2.cpp 
+	${PROJSRC}gamemeta.y 
+	${PROJSRC}gamemeta.l
+	${PROJSRC}metacommon.h
+	${PROJSRC}metagenerator.h
+	${PROJSRC}metagenerator.cpp
+	${PROJSRC}meta.h
+	${PROJSRC}meta.cpp
+	${PROJSRC}metagrammar.h
+	${PROJSRC}metagrammar.cpp
+	${PROJSRC}gamemetalexer.h
+)
+
+set (LIBS
+	Shlwapi.lib
+	Shell32.lib
+	shared
+)
+
+add_library (${PROJ} ${SRC_FILES})
+source_group(content FILES ${CONTENT_FILES})
+
+add_lemon_command(${LEMON_EXE} ${LEMON_TEMPLATE} ${GENERATED_FILES_PATH} ${PROJSRC}gamemeta.y)
+add_flex_command(${FLEX_EXE} ${GENERATED_FILES_PATH} ${PROJSRC}gamemeta.l)
+
+set_target_properties(${PROJ} PROPERTIES COMPILE_FLAGS ${DEFINITIONS})
+set_target_properties(${PROJ} PROPERTIES INCLUDE_DIRECTORIES "${INCLUDES}")
+set_target_properties(${PROJ} PROPERTIES DEBUG_POSTFIX "_d" )
+set_target_properties(${PROJ} PROPERTIES RELEASE_POSTFIX "_r" )
+set_target_properties(${PROJ} PROPERTIES MINSIZEREL_POSTFIX "_s" )
+set_target_properties(${PROJ} PROPERTIES RELWITHDEBINFO_POSTFIX "" )
+set_target_properties(${PROJ} PROPERTIES FOLDER "src")
+
+set(PROJ gamecode)
+
+set(PROJSRC ${SRC}gamecode/)
+
+set (GAMECODE_INCLUDES ${SRC}gamecode)
+make_absolute(GAMECODE_INCLUDES)
+
+set (DEFINITIONS
+	_CRT_SECURE_NO_WARNINGS
+)
+make_definitions(DEFINITIONS)
+
+set (INCLUDES
+	${GENERATED_FILES_INCLUDES}
+	${GAMECODE_INCLUDES}
+	${SRC_INCLUDES}
+	${GC_INCLUDES}
+)
+
+set (SRC_FILES
+	${PROJSRC}gamecode.cpp 
+	${PROJSRC}generated.cpp 
+	${PROJSRC}generated2.cpp 
+	${PROJSRC}gamecode.y 
+	${PROJSRC}gamecode.l
+	${PROJSRC}codegenerator.h
+	${PROJSRC}codegenerator.cpp
+	${PROJSRC}codegrammar.h
+	${PROJSRC}codegrammar.cpp
+	${PROJSRC}codelexer.h
+	${CONTENT_FILES}
+)
+
+set (LIBS
+	Shlwapi.lib
+	Shell32.lib
+	shared
+	gamemeta
+)
+
+add_executable (${PROJ} ${SRC_FILES})
+source_group(content FILES ${CONTENT_FILES})
+
+add_lemon_command(${LEMON_EXE} ${LEMON_TEMPLATE} ${GENERATED_FILES_PATH} ${PROJSRC}gamecode.y)
+add_flex_command(${FLEX_EXE} ${GENERATED_FILES_PATH} ${PROJSRC}gamecode.l)
+
+set_target_properties(${PROJ} PROPERTIES COMPILE_FLAGS ${DEFINITIONS})
+set_target_properties(${PROJ} PROPERTIES INCLUDE_DIRECTORIES "${INCLUDES}")
+set_target_properties(${PROJ} PROPERTIES DEBUG_POSTFIX "_d" )
+set_target_properties(${PROJ} PROPERTIES RELEASE_POSTFIX "_r" )
+set_target_properties(${PROJ} PROPERTIES MINSIZEREL_POSTFIX "_s" )
+set_target_properties(${PROJ} PROPERTIES RELWITHDEBINFO_POSTFIX "" )
+target_link_libraries(${PROJ} ${LIBS})
+set_target_properties(${PROJ} PROPERTIES FOLDER "src")
+
+
+#----------------
+# samples
+
+set (GAMECODE_EXE ${ROOT}bin/gamecode.exe)
+make_absolute(GAMECODE_EXE)
+
+set(PROJ loader)
+
+set(PROJSRC ${SAMPLES}loader/)
+
+set_output_dir(${PROJSRC}bin)
+
+set (DEFINITIONS
+	_CRT_SECURE_NO_WARNINGS
+)
+make_definitions(DEFINITIONS)
+
+set (GAMECODEOBJECTS_INCLUDES ${PROJSRC}codeout)
+make_absolute(GAMECODEOBJECTS_INCLUDES)
+
+set (INCLUDES
+	${GENERATED_FILES_INCLUDES}
+	${GAMECODEOBJECTS_INCLUDES}
+	${GC_INCLUDES}
+)
+
+set (GAMETYPES_FILE ${PUB_SERVER}Gamecode/gametypes.txt)
+
+set (META_FILE
+	${PROJSRC}/gametypes.txt
+)
+source_group(meta FILES ${META_FILE})
+add_gamemeta_command(${GAMECODE_EXE} ${GENERATED_FILES_PATH} ${META_FILE})
+
+set (CONTENT_FILES
+	${PROJSRC}/thunderattack.txt
+)
+source_group(content FILES ${CONTENT_FILES})
+add_gamecode_command(${GAMECODE_EXE} ${GENERATED_FILES_PATH} ${META_FILE} ${PROJSRC}/thunderAttack.txt)
+
+set (SRC_FILES
+	${META_FILE}
+	${PROJSRC}loader.cpp 
+	${CONTENT_FILES}
+)
+
+set (LIBS
+	Shlwapi.lib
+	Shell32.lib
+)
+
+add_executable (${PROJ} ${SRC_FILES})
+
+set_target_properties(${PROJ} PROPERTIES COMPILE_FLAGS ${DEFINITIONS})
+set_target_properties(${PROJ} PROPERTIES INCLUDE_DIRECTORIES "${INCLUDES}")
+set_target_properties(${PROJ} PROPERTIES DEBUG_POSTFIX "_d" )
+set_target_properties(${PROJ} PROPERTIES RELEASE_POSTFIX "_r" )
+set_target_properties(${PROJ} PROPERTIES MINSIZEREL_POSTFIX "_s" )
+set_target_properties(${PROJ} PROPERTIES RELWITHDEBINFO_POSTFIX "" )
+target_link_libraries(${PROJ} ${LIBS})
+set_target_properties(${PROJ} PROPERTIES FOLDER "samples")

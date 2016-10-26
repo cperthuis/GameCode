@@ -1,0 +1,12 @@
+#define GCL_OBJECTTYPE                       1
+#define GCL_STRING                           2
+#define GCL_LBRACKET                         3
+#define GCL_RBRACKET                         4
+#define GCL_EQUAL                            5
+#define GCL_PLUSEQUAL                        6
+#define GCL_BOOL                             7
+#define GCL_INT                              8
+#define GCL_FLOAT                            9
+#define GCL_PLUSINF                         10
+#define GCL_MINUSINF                        11
+#define GCL_STRINGVALUE                     12

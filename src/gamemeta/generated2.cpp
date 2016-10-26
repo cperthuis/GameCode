@@ -1,0 +1,1 @@
+#include <gamemeta/gamemetascanner.yy.cpp>

@@ -1,0 +1,27 @@
+cmake_minimum_required (VERSION 2.8) 
+
+macro(make_absolute files)
+	set (_out)
+	foreach(file ${${files}})
+		get_filename_component(file_abs ${file} ABSOLUTE)	
+		LIST(APPEND _out ${file_abs})
+	endforeach()
+	set (${files} ${_out})
+endmacro()
+
+set (ROOT ../)
+set (SRC ./)
+set (PUB ${ROOT}bin/)
+set (PUB_ABS ${PUB})
+make_absolute(PUB_ABS)
+
+set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PUB_ABS})
+
+foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
+    string( TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG )
+    set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${PUB_ABS} )
+endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
+
+project (lemon)
+
+add_executable (lemon lemon/lemon.c)

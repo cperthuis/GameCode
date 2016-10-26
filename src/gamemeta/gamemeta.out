@@ -1,0 +1,481 @@
+State 0:
+          start ::= * itemList
+          itemList ::= * itemList object
+          itemList ::= * itemList enum
+      (3) itemList ::= *
+
+                      itemList shift        6      
+                         start accept
+                     {default} reduce       3      itemList ::=
+
+State 1:
+          member ::= type tags memberName EQUAL * value
+          value ::= * BOOL
+          value ::= * INT
+          value ::= * FLOAT value3f
+          value ::= * INT value3f
+          value3f ::= * FLOAT value2f
+          value3f ::= * INT value2f
+          value2f ::= * FLOAT FLOAT
+          value2f ::= * INT FLOAT
+          value2f ::= * FLOAT INT
+          value2f ::= * INT INT
+          value ::= * value3f
+          value ::= * value2f
+          value ::= * FLOAT
+          value ::= * PLUSINF
+          value ::= * MINUSINF
+          value ::= * STRINGVALUE
+          value ::= * STRING
+
+                        STRING shift-reduce 48     value ::= STRING
+                           INT shift        8      
+                          BOOL shift-reduce 32     value ::= BOOL
+                         FLOAT shift        7      
+                   STRINGVALUE shift-reduce 47     value ::= STRINGVALUE
+                       PLUSINF shift-reduce 45     value ::= PLUSINF
+                      MINUSINF shift-reduce 46     value ::= MINUSINF
+                         value shift-reduce 18     member ::= type tags memberName EQUAL value
+                       value2f shift-reduce 43     value ::= value2f
+                       value3f shift-reduce 42     value ::= value3f
+
+State 2:
+          object ::= OBJECT objectName COLUMN parentName tags LBRACKET memberList * RBRACKET
+          memberList ::= memberList * member
+          member ::= * type tags memberName EQUAL value
+          member ::= * type tags memberName ARRAY
+          member ::= * type tags memberName
+          type ::= * typeModifierList memberType
+          typeModifierList ::= * typeModifierList typeModifier
+     (62) typeModifierList ::= *
+
+                      RBRACKET shift-reduce 12     object ::= OBJECT objectName COLUMN parentName tags LBRACKET memberList RBRACKET
+                        member shift-reduce 16     memberList ::= memberList member
+                          type shift        19     
+              typeModifierList shift        5      
+                     {default} reduce       62     typeModifierList ::=
+
+State 3:
+          object ::= OBJECT objectName tags LBRACKET memberList * RBRACKET
+          memberList ::= memberList * member
+          member ::= * type tags memberName EQUAL value
+          member ::= * type tags memberName ARRAY
+          member ::= * type tags memberName
+          type ::= * typeModifierList memberType
+          typeModifierList ::= * typeModifierList typeModifier
+     (62) typeModifierList ::= *
+
+                      RBRACKET shift-reduce 11     object ::= OBJECT objectName tags LBRACKET memberList RBRACKET
+                        member shift-reduce 16     memberList ::= memberList member
+                          type shift        19     
+              typeModifierList shift        5      
+                     {default} reduce       62     typeModifierList ::=
+
+State 4:
+          enum ::= ENUM enumName LBRACKET * enumList RBRACKET
+          enumList ::= * enumList enumMember
+          enumList ::= * enumMember
+          enumMember ::= * enumTag
+          enumMember ::= * enumTag EQUAL INT
+          enumTag ::= * STRING
+
+                        STRING shift-reduce 10     enumTag ::= STRING
+                       enumTag shift        33     
+                    enumMember shift-reduce 7      enumList ::= enumMember
+                      enumList shift        9      
+
+State 5:
+          type ::= typeModifierList * memberType
+          memberType ::= * TYPEBOOL
+          memberType ::= * TYPEUINT
+          memberType ::= * TYPEINT
+          memberType ::= * TYPEUFLOAT
+          memberType ::= * TYPEFLOAT
+          memberType ::= * TYPEFLOAT2
+          memberType ::= * TYPEFLOAT3
+          memberType ::= * TYPEFLOAT4
+          memberType ::= * TYPESTRING
+          memberType ::= * TYPEEXPRESSION
+          memberType ::= * STRING
+          typeModifierList ::= typeModifierList * typeModifier
+          typeModifier ::= * NONZERO
+          typeModifier ::= * REF
+
+                        STRING shift-reduce 60     memberType ::= STRING
+                      TYPEBOOL shift-reduce 50     memberType ::= TYPEBOOL
+                      TYPEUINT shift-reduce 51     memberType ::= TYPEUINT
+                       TYPEINT shift-reduce 52     memberType ::= TYPEINT
+                    TYPEUFLOAT shift-reduce 53     memberType ::= TYPEUFLOAT
+                     TYPEFLOAT shift-reduce 54     memberType ::= TYPEFLOAT
+                    TYPEFLOAT2 shift-reduce 55     memberType ::= TYPEFLOAT2
+                    TYPEFLOAT3 shift-reduce 56     memberType ::= TYPEFLOAT3
+                    TYPEFLOAT4 shift-reduce 57     memberType ::= TYPEFLOAT4
+                    TYPESTRING shift-reduce 58     memberType ::= TYPESTRING
+                TYPEEXPRESSION shift-reduce 59     memberType ::= TYPEEXPRESSION
+                       NONZERO shift-reduce 63     typeModifier ::= NONZERO
+                           REF shift-reduce 64     typeModifier ::= REF
+                    memberType shift-reduce 49     type ::= typeModifierList memberType
+                  typeModifier shift-reduce 61     typeModifierList ::= typeModifierList typeModifier
+
+State 6:
+      (0) start ::= itemList *
+          itemList ::= itemList * object
+          itemList ::= itemList * enum
+          enum ::= * ENUM enumName LBRACKET enumList RBRACKET
+          object ::= * OBJECT objectName tags LBRACKET memberList RBRACKET
+          object ::= * OBJECT objectName COLUMN parentName tags LBRACKET memberList RBRACKET
+          object ::= * OBJECT objectName
+
+                             $ reduce       0      start ::= itemList
+                          ENUM shift        21     
+                        OBJECT shift        20     
+                          enum shift-reduce 2      itemList ::= itemList enum
+                        object shift-reduce 1      itemList ::= itemList object
+
+State 7:
+          value ::= FLOAT * value3f
+          value3f ::= * FLOAT value2f
+          value3f ::= FLOAT * value2f
+          value3f ::= * INT value2f
+          value2f ::= * FLOAT FLOAT
+          value2f ::= FLOAT * FLOAT
+          value2f ::= * INT FLOAT
+          value2f ::= * FLOAT INT
+          value2f ::= FLOAT * INT
+          value2f ::= * INT INT
+     (44) value ::= FLOAT *
+
+                           INT shift        12     
+                         FLOAT shift        13     
+                       value2f shift-reduce 36     value3f ::= FLOAT value2f
+                       value3f shift-reduce 34     value ::= FLOAT value3f
+                     {default} reduce       44     value ::= FLOAT
+
+State 8:
+     (33) value ::= INT *
+          value ::= INT * value3f
+          value3f ::= * FLOAT value2f
+          value3f ::= * INT value2f
+          value3f ::= INT * value2f
+          value2f ::= * FLOAT FLOAT
+          value2f ::= * INT FLOAT
+          value2f ::= INT * FLOAT
+          value2f ::= * FLOAT INT
+          value2f ::= * INT INT
+          value2f ::= INT * INT
+
+                           INT shift        14     
+                         FLOAT shift        15     
+                       value2f shift-reduce 37     value3f ::= INT value2f
+                       value3f shift-reduce 35     value ::= INT value3f
+                     {default} reduce       33     value ::= INT
+
+State 9:
+          enum ::= ENUM enumName LBRACKET enumList * RBRACKET
+          enumList ::= enumList * enumMember
+          enumMember ::= * enumTag
+          enumMember ::= * enumTag EQUAL INT
+          enumTag ::= * STRING
+
+                      RBRACKET shift-reduce 4      enum ::= ENUM enumName LBRACKET enumList RBRACKET
+                        STRING shift-reduce 10     enumTag ::= STRING
+                       enumTag shift        33     
+                    enumMember shift-reduce 6      enumList ::= enumList enumMember
+
+State 10:
+          tags ::= LTAG tagList * RTAG
+          tagList ::= tagList * tag
+          tag ::= * BOOL
+          tag ::= * INT
+          tag ::= * FLOAT
+          tag ::= * STRINGVALUE
+          tag ::= * STRING
+          tag ::= * TAG
+
+                        STRING shift-reduce 30     tag ::= STRING
+                           INT shift-reduce 27     tag ::= INT
+                          RTAG shift-reduce 22     tags ::= LTAG tagList RTAG
+                          BOOL shift-reduce 26     tag ::= BOOL
+                         FLOAT shift-reduce 28     tag ::= FLOAT
+                   STRINGVALUE shift-reduce 29     tag ::= STRINGVALUE
+                           TAG shift-reduce 31     tag ::= TAG
+                           tag shift-reduce 24     tagList ::= tagList tag
+
+State 11:
+          object ::= OBJECT objectName * tags LBRACKET memberList RBRACKET
+          object ::= OBJECT objectName * COLUMN parentName tags LBRACKET memberList RBRACKET
+     (13) object ::= OBJECT objectName *
+          tags ::= * LTAG tagList RTAG
+     (23) tags ::= *
+
+                      LBRACKET reduce       23     tags ::=
+                        COLUMN shift        17     
+                          LTAG shift        23     
+                          tags shift        31     
+                     {default} reduce       13     object ::= OBJECT objectName
+
+State 12:
+          value3f ::= INT * value2f
+          value2f ::= * FLOAT FLOAT
+          value2f ::= * INT FLOAT
+          value2f ::= INT * FLOAT
+          value2f ::= * FLOAT INT
+     (40) value2f ::= FLOAT INT *
+          value2f ::= * INT INT
+          value2f ::= INT * INT
+
+                           INT shift        25     
+                         FLOAT shift        26     
+                       value2f shift-reduce 37     value3f ::= INT value2f
+                     {default} reduce       40     value2f ::= FLOAT INT
+
+State 13:
+          value3f ::= FLOAT * value2f
+          value2f ::= * FLOAT FLOAT
+          value2f ::= FLOAT * FLOAT
+     (38) value2f ::= FLOAT FLOAT *
+          value2f ::= * INT FLOAT
+          value2f ::= * FLOAT INT
+          value2f ::= FLOAT * INT
+          value2f ::= * INT INT
+
+                           INT shift        27     
+                         FLOAT shift        28     
+                       value2f shift-reduce 36     value3f ::= FLOAT value2f
+                     {default} reduce       38     value2f ::= FLOAT FLOAT
+
+State 14:
+          value3f ::= INT * value2f
+          value2f ::= * FLOAT FLOAT
+          value2f ::= * INT FLOAT
+          value2f ::= INT * FLOAT
+          value2f ::= * FLOAT INT
+          value2f ::= * INT INT
+          value2f ::= INT * INT
+     (41) value2f ::= INT INT *
+
+                           INT shift        25     
+                         FLOAT shift        26     
+                       value2f shift-reduce 37     value3f ::= INT value2f
+                     {default} reduce       41     value2f ::= INT INT
+
+State 15:
+          value3f ::= FLOAT * value2f
+          value2f ::= * FLOAT FLOAT
+          value2f ::= FLOAT * FLOAT
+          value2f ::= * INT FLOAT
+     (39) value2f ::= INT FLOAT *
+          value2f ::= * FLOAT INT
+          value2f ::= FLOAT * INT
+          value2f ::= * INT INT
+
+                           INT shift        27     
+                         FLOAT shift        28     
+                       value2f shift-reduce 36     value3f ::= FLOAT value2f
+                     {default} reduce       39     value2f ::= INT FLOAT
+
+State 16:
+          object ::= OBJECT objectName COLUMN parentName * tags LBRACKET memberList RBRACKET
+          tags ::= * LTAG tagList RTAG
+     (23) tags ::= *
+
+                          LTAG shift        23     
+                          tags shift        30     
+                     {default} reduce       23     tags ::=
+
+State 17:
+          object ::= OBJECT objectName COLUMN * parentName tags LBRACKET memberList RBRACKET
+          parentName ::= * STRING
+
+                        STRING shift-reduce 15     parentName ::= STRING
+                    parentName shift        16     
+
+State 18:
+          member ::= type tags * memberName EQUAL value
+          member ::= type tags * memberName ARRAY
+          member ::= type tags * memberName
+          memberName ::= * STRING
+
+                        STRING shift-reduce 21     memberName ::= STRING
+                    memberName shift        29     
+
+State 19:
+          member ::= type * tags memberName EQUAL value
+          member ::= type * tags memberName ARRAY
+          member ::= type * tags memberName
+          tags ::= * LTAG tagList RTAG
+     (23) tags ::= *
+
+                          LTAG shift        23     
+                          tags shift        18     
+                     {default} reduce       23     tags ::=
+
+State 20:
+          object ::= OBJECT * objectName tags LBRACKET memberList RBRACKET
+          object ::= OBJECT * objectName COLUMN parentName tags LBRACKET memberList RBRACKET
+          object ::= OBJECT * objectName
+          objectName ::= * STRING
+
+                        STRING shift-reduce 14     objectName ::= STRING
+                    objectName shift        11     
+
+State 21:
+          enum ::= ENUM * enumName LBRACKET enumList RBRACKET
+          enumName ::= * STRING
+
+                        STRING shift-reduce 5      enumName ::= STRING
+                      enumName shift        34     
+
+State 22:
+          object ::= OBJECT objectName COLUMN parentName tags LBRACKET * memberList RBRACKET
+          memberList ::= * memberList member
+     (17) memberList ::= *
+
+                    memberList shift        2      
+                     {default} reduce       17     memberList ::=
+
+State 23:
+          tags ::= LTAG * tagList RTAG
+          tagList ::= * tagList tag
+     (25) tagList ::= *
+
+                       tagList shift        10     
+                     {default} reduce       25     tagList ::=
+
+State 24:
+          object ::= OBJECT objectName tags LBRACKET * memberList RBRACKET
+          memberList ::= * memberList member
+     (17) memberList ::= *
+
+                    memberList shift        3      
+                     {default} reduce       17     memberList ::=
+
+State 25:
+          value2f ::= INT * FLOAT
+          value2f ::= INT * INT
+     (41) value2f ::= INT INT *
+
+                           INT shift-reduce 41     value2f ::= INT INT
+                         FLOAT shift-reduce 39     value2f ::= INT FLOAT
+                     {default} reduce       41     value2f ::= INT INT
+
+State 26:
+          value2f ::= FLOAT * FLOAT
+     (39) value2f ::= INT FLOAT *
+          value2f ::= FLOAT * INT
+
+                           INT shift-reduce 40     value2f ::= FLOAT INT
+                         FLOAT shift-reduce 38     value2f ::= FLOAT FLOAT
+                     {default} reduce       39     value2f ::= INT FLOAT
+
+State 27:
+          value2f ::= INT * FLOAT
+     (40) value2f ::= FLOAT INT *
+          value2f ::= INT * INT
+
+                           INT shift-reduce 41     value2f ::= INT INT
+                         FLOAT shift-reduce 39     value2f ::= INT FLOAT
+                     {default} reduce       40     value2f ::= FLOAT INT
+
+State 28:
+          value2f ::= FLOAT * FLOAT
+     (38) value2f ::= FLOAT FLOAT *
+          value2f ::= FLOAT * INT
+
+                           INT shift-reduce 40     value2f ::= FLOAT INT
+                         FLOAT shift-reduce 38     value2f ::= FLOAT FLOAT
+                     {default} reduce       38     value2f ::= FLOAT FLOAT
+
+State 29:
+          member ::= type tags memberName * EQUAL value
+          member ::= type tags memberName * ARRAY
+     (20) member ::= type tags memberName *
+
+                         EQUAL shift        1      
+                         ARRAY shift-reduce 19     member ::= type tags memberName ARRAY
+                     {default} reduce       20     member ::= type tags memberName
+
+State 30:
+          object ::= OBJECT objectName COLUMN parentName tags * LBRACKET memberList RBRACKET
+
+                      LBRACKET shift        22     
+
+State 31:
+          object ::= OBJECT objectName tags * LBRACKET memberList RBRACKET
+
+                      LBRACKET shift        24     
+
+State 32:
+          enumMember ::= enumTag EQUAL * INT
+
+                           INT shift-reduce 9      enumMember ::= enumTag EQUAL INT
+
+State 33:
+      (8) enumMember ::= enumTag *
+          enumMember ::= enumTag * EQUAL INT
+
+                         EQUAL shift        32     
+                     {default} reduce       8      enumMember ::= enumTag
+
+State 34:
+          enum ::= ENUM enumName * LBRACKET enumList RBRACKET
+
+                      LBRACKET shift        4      
+
+----------------------------------------------------
+Symbols:
+    0: $:
+    1: ENUM
+    2: LBRACKET
+    3: RBRACKET
+    4: STRING
+    5: EQUAL
+    6: INT
+    7: OBJECT
+    8: COLUMN
+    9: ARRAY
+   10: LTAG
+   11: RTAG
+   12: BOOL
+   13: FLOAT
+   14: STRINGVALUE
+   15: TAG
+   16: PLUSINF
+   17: MINUSINF
+   18: TYPEBOOL
+   19: TYPEUINT
+   20: TYPEINT
+   21: TYPEUFLOAT
+   22: TYPEFLOAT
+   23: TYPEFLOAT2
+   24: TYPEFLOAT3
+   25: TYPEFLOAT4
+   26: TYPESTRING
+   27: TYPEEXPRESSION
+   28: NONZERO
+   29: REF
+   30: error:
+   31: itemList: <lambda> ENUM OBJECT
+   32: enum: ENUM
+   33: object: OBJECT
+   34: start: <lambda> ENUM OBJECT
+   35: enumTag: STRING
+   36: enumName: STRING
+   37: enumMember: STRING
+   38: enumList: STRING
+   39: objectName: STRING
+   40: parentName: STRING
+   41: memberList: <lambda> STRING TYPEBOOL TYPEUINT TYPEINT TYPEUFLOAT TYPEFLOAT TYPEFLOAT2 TYPEFLOAT3 TYPEFLOAT4 TYPESTRING TYPEEXPRESSION NONZERO REF
+   42: member: STRING TYPEBOOL TYPEUINT TYPEINT TYPEUFLOAT TYPEFLOAT TYPEFLOAT2 TYPEFLOAT3 TYPEFLOAT4 TYPESTRING TYPEEXPRESSION NONZERO REF
+   43: memberName: STRING
+   44: tagList: <lambda> STRING INT BOOL FLOAT STRINGVALUE TAG
+   45: tags: <lambda> LTAG
+   46: tag: STRING INT BOOL FLOAT STRINGVALUE TAG
+   47: value: STRING INT BOOL FLOAT STRINGVALUE PLUSINF MINUSINF
+   48: value2f: INT FLOAT
+   49: value3f: INT FLOAT
+   50: value3i:
+   51: type: STRING TYPEBOOL TYPEUINT TYPEINT TYPEUFLOAT TYPEFLOAT TYPEFLOAT2 TYPEFLOAT3 TYPEFLOAT4 TYPESTRING TYPEEXPRESSION NONZERO REF
+   52: memberType: STRING TYPEBOOL TYPEUINT TYPEINT TYPEUFLOAT TYPEFLOAT TYPEFLOAT2 TYPEFLOAT3 TYPEFLOAT4 TYPESTRING TYPEEXPRESSION
+   53: typeModifierList: <lambda> NONZERO REF
+   54: typeModifier: NONZERO REF
