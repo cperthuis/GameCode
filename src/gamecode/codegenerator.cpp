@@ -1001,6 +1001,16 @@ char* serializeOutput(GeneratorContext &context, size_t *size)
 					}
 				}
 			}
+			else if (dataObject.gcArrayInstanceMember->memberType->type == kMemberType_STRING)
+			{
+				std::vector<size_t> strPtrOffsets;
+				strPtrOffsets.push_back(0);
+				for (int k = 0; k < dataObject.gcArray->_size; k++)
+				{
+					size_t arrayElementOffset = 8*k;
+					writeStringPatch(strPtrOffsets, dataObject.buffer + arrayElementOffset, objectsRelativeOffset + arrayElementOffset, stringTableObjectOffset, previousStringPointer);
+				}
+			}
 		}
 	}
 

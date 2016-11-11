@@ -361,7 +361,7 @@ int createMeta(Meta *meta, const GmlItemList *itemList)
 					//printf("%s: %i\n", gom.name, gom.offset);
 
 					//record vtable pointers and string pointers
-					if ((gom.type == kMemberType_OBJECT) && (!(gom.modifiers & GML_TYPE_MODIFIER_ARRAY || gom.modifiers & GML_TYPE_MODIFIER_REF)))
+					if ((gom.type == kMemberType_OBJECT) && (!((gom.modifiers & GML_TYPE_MODIFIER_ARRAY) || (gom.modifiers & GML_TYPE_MODIFIER_REF))))
 					{
 						//if this member is an object, we add its vtable and string pointers to the current object
 						const std::vector<size_t> &memberVPtrs = gom.objectType->vTablePtrOffsets;
@@ -377,7 +377,7 @@ int createMeta(Meta *meta, const GmlItemList *itemList)
 							go->strPtrOffsets.push_back(memberOffset + memberStrings[i]);
 						}
 					}
-					else if (gom.type == kMemberType_STRING)
+					else if ( (gom.type == kMemberType_STRING) && (!(gom.modifiers & GML_TYPE_MODIFIER_ARRAY)))
 					{
 						//if it's a string, we add the string offset
 						go->strPtrOffsets.push_back(memberOffset);
