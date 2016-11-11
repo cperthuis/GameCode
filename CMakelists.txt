@@ -50,8 +50,6 @@ macro(set_output_dir OUTPUTDIR)
 	endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
 endmacro()
 
-set_output_dir(${PUB_ABS})
-
 macro(add_lemon_command LemonPath LemonTemplate GeneratedOutputPath GrammarFile)
 	GET_FILENAME_COMPONENT(GrammarFilename ${GrammarFile} NAME_WE)
 	GET_FILENAME_COMPONENT(GrammarDir ${GrammarFile} DIRECTORY)
@@ -128,6 +126,8 @@ endmacro(add_gamecode_command)
 
 project (gamecode)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+set_output_dir(${PUB_ABS})
 
 set(SRC_INCLUDES ${SRC})
 make_absolute(SRC_INCLUDES)
