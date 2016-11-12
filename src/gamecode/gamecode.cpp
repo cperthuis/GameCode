@@ -86,6 +86,7 @@ int parseData(const char *content, const char *filename, const Meta* meta, const
 		memset(&lexerLVal, 0, sizeof(lexerLVal));
 		lexCode = yylex(&lexerLVal,scanner);
 
+		t0.bValue = lexerLVal.bValue;
 		t0.iValue = lexerLVal.iValue;
 		t0.fValue = lexerLVal.fValue;
 		memcpy(t0.strValue, lexerLVal.strValue, sizeof(t0.strValue));
