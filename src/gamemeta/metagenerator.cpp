@@ -175,7 +175,7 @@ int generateOutput(const Meta *meta, const char *outputPath, bool printResult)
 #define OBJ_PREFIX_CAPITAL "GC"
 
 	std::string all;
-	all += "#ifndef " OBJ_PREFIX_CAPITAL "ALL_H\r\n#define " OBJ_PREFIX_CAPITAL "ALL_H\r\n\r\n";
+	all += "#pragma once\r\n\r\n";
 
 	for (std::set<GenEnum*, lessGenEnum>::iterator it = meta->enumSet.begin(); it != meta->enumSet.end(); it++)
 	{
@@ -195,9 +195,9 @@ int generateOutput(const Meta *meta, const char *outputPath, bool printResult)
 		enumName++;
 		}*/
 
-		str += FORMAT_1("#ifndef %s_H\r\n#define %s_H\r\n\r\n"
+		str += FORMAT_1("#pragma once\r\n\r\n"
 			"namespace %s\r\n{\r\n"
-			"\tenum value\r\n\t{\r\n", p, p, enumName);
+			"\tenum value\r\n\t{\r\n", enumName);
 
 		int count = (int)genEnum->members.size();
 		for (int i = 0; i < count; i++)
@@ -208,7 +208,7 @@ int generateOutput(const Meta *meta, const char *outputPath, bool printResult)
 				str += FORMAT_1("\t\t%s = %i,\r\n", genEnum->members[i].name, genEnum->members[i].value);
 		}
 
-		str += FORMAT_1("\t};\r\n}\r\n\r\n#endif // %s_H\r\n", p);
+		str += FORMAT_1("\t};\r\n}\r\n\r\n");
 		if (printResult)
 			printf(str.c_str());
 
@@ -258,7 +258,7 @@ int generateOutput(const Meta *meta, const char *outputPath, bool printResult)
 		std::string str1;
 		const char *objectName = genObject->name;
 		const char *p = TO_UPPER_0(objectName);
-		str0 += FORMAT_1("#ifndef " OBJ_PREFIX_CAPITAL "%s_H\r\n#define " OBJ_PREFIX_CAPITAL "%s_H\r\n\r\n", p, p);
+		str0 += "#pragma once\r\n\r\n";
 
 		if (genObject->parent == NULL)
 		{
@@ -328,7 +328,7 @@ int generateOutput(const Meta *meta, const char *outputPath, bool printResult)
 			}
 		}
 
-		str1 += FORMAT_1("};\r\n\r\n#endif // %s_H\r\n", p);
+		str1 += "};\r\n\r\n";
 
 		for (IncludeSet::iterator it = extraIncludes.begin(); it != extraIncludes.end(); it++)
 		{
@@ -384,7 +384,7 @@ int generateOutput(const Meta *meta, const char *outputPath, bool printResult)
 		objectIndex++;
 	}
 
-	all += "\r\n#endif // " OBJ_PREFIX_CAPITAL "ALL_H\r\n";
+	all += "\r\n";
 
 	const char *filename = FORMAT_1("%s\\" OBJ_PREFIX "All.h", outputPath);
 	FILE *fp = fopen(filename, "wb");
@@ -399,7 +399,7 @@ int generateOutput(const Meta *meta, const char *outputPath, bool printResult)
 	}
 
 	std::string vptr;
-	vptr += "#include \"gcAll.h\"\r\n\r\n";
+	vptr += "#include \"" OBJ_PREFIX "All.h\"\r\n\r\n";
 	vptr += FORMAT_1("#define GC_OBJECT_COUNT %i\r\n", objectIndex);
 	vptr += "static void* _gcVptr[GC_OBJECT_COUNT];\r\n\r\n";
 	vptr += "int gcGetObjectCount() { return GC_OBJECT_COUNT; }\r\n\r\n";

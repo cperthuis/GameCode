@@ -1,5 +1,4 @@
-#ifndef EBRANCHORDER_H
-#define EBRANCHORDER_H
+#pragma once
 
 namespace eBranchOrder
 {
@@ -10,4 +9,3 @@ namespace eBranchOrder
 	};
 }
 
-#endif // EBRANCHORDER_H

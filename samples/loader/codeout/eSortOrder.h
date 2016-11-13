@@ -1,5 +1,4 @@
-#ifndef ESORTORDER_H
-#define ESORTORDER_H
+#pragma once
 
 namespace eSortOrder
 {
@@ -11,4 +10,3 @@ namespace eSortOrder
 	};
 }
 
-#endif // ESORTORDER_H

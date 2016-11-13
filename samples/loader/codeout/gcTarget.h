@@ -1,5 +1,4 @@
-#ifndef GCTARGET_H
-#define GCTARGET_H
+#pragma once
 
 #include "eCenter.h"
 #include "eFaction.h"
@@ -27,4 +26,3 @@ struct gcTarget : public gcStep
 	eSortOrder::value sortOrder;
 };
 
-#endif // TARGET_H

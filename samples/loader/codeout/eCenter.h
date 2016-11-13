@@ -1,5 +1,4 @@
-#ifndef ECENTER_H
-#define ECENTER_H
+#pragma once
 
 namespace eCenter
 {
@@ -10,4 +9,3 @@ namespace eCenter
 	};
 }
 
-#endif // ECENTER_H

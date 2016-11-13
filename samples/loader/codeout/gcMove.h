@@ -1,5 +1,4 @@
-#ifndef GCMOVE_H
-#define GCMOVE_H
+#pragma once
 
 #include "gcEffect.h"
 
@@ -14,4 +13,3 @@ struct gcMove : public gcEffect
 	gcTarget *target;
 };
 
-#endif // MOVE_H

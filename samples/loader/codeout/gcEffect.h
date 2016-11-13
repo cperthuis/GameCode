@@ -1,5 +1,4 @@
-#ifndef GCEFFECT_H
-#define GCEFFECT_H
+#pragma once
 
 #include "gcStep.h"
 
@@ -14,4 +13,3 @@ struct gcEffect : public gcStep
 	float duration;
 };
 
-#endif // EFFECT_H

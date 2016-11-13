@@ -1,5 +1,4 @@
-#ifndef GC_H
-#define GC_H
+#pragma once
 
 #include <stdint.h>
 
@@ -133,5 +132,3 @@ inline void gcPatchBlockPointers(GcBlockHeader *header, const void * const * vPt
 	//patch strings
 	gcPatchPointerChain(header->firstStringPointerOffset, header);
 }
-
-#endif

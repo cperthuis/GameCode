@@ -1,5 +1,4 @@
-#ifndef GCPLAYSEQUENCE_H
-#define GCPLAYSEQUENCE_H
+#pragma once
 
 #include "eCenter.h"
 
@@ -19,4 +18,3 @@ struct gcPlaySequence : public gcStep
 	eCenter::value center;
 };
 
-#endif // PLAYSEQUENCE_H

@@ -1,5 +1,4 @@
-#ifndef GCSTEP_H
-#define GCSTEP_H
+#pragma once
 
 #define GC_STEP 0x7C8C8DE1
 #define GC_TARGET 0xD2EBE94C
@@ -16,4 +15,3 @@ struct gcStep
 
 };
 
-#endif // STEP_H

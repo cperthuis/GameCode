@@ -1,5 +1,4 @@
-#ifndef ETEST_H
-#define ETEST_H
+#pragma once
 
 namespace eTest
 {
@@ -10,4 +9,3 @@ namespace eTest
 	};
 }
 
-#endif // ETEST_H

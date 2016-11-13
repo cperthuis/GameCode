@@ -1,5 +1,4 @@
-#ifndef EFACTION_H
-#define EFACTION_H
+#pragma once
 
 namespace eFaction
 {
@@ -10,4 +9,3 @@ namespace eFaction
 	};
 }
 
-#endif // EFACTION_H

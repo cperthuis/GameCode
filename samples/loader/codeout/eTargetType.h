@@ -1,5 +1,4 @@
-#ifndef ETARGETTYPE_H
-#define ETARGETTYPE_H
+#pragma once
 
 namespace eTargetType
 {
@@ -10,4 +9,3 @@ namespace eTargetType
 	};
 }
 
-#endif // ETARGETTYPE_H

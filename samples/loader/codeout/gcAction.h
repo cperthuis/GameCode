@@ -1,5 +1,4 @@
-#ifndef GCACTION_H
-#define GCACTION_H
+#pragma once
 
 #define GC_ACTION 0xA6BF38E3
 
@@ -23,4 +22,3 @@ struct gcAction
 	GcArray<gcBranch> branches; 
 };
 
-#endif // ACTION_H

@@ -1,5 +1,4 @@
-#ifndef GCDEALDAMAGE_H
-#define GCDEALDAMAGE_H
+#pragma once
 
 #include "gcStep.h"
 
@@ -15,4 +14,3 @@ struct gcDealDamage : public gcStep
 	int amount;
 };
 
-#endif // DEALDAMAGE_H

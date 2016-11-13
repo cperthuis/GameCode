@@ -1,5 +1,4 @@
-#ifndef ESORTFUNCTION_H
-#define ESORTFUNCTION_H
+#pragma once
 
 namespace eSortFunction
 {
@@ -9,4 +8,3 @@ namespace eSortFunction
 	};
 }
 
-#endif // ESORTFUNCTION_H

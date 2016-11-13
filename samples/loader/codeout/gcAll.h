@@ -1,5 +1,4 @@
-#ifndef GCALL_H
-#define GCALL_H
+#pragma once
 
 #include "eBranchOrder.h"
 #include "eCenter.h"
@@ -19,4 +18,3 @@
 #include "gcStep.h"
 #include "gcTarget.h"
 
-#endif // GCALL_H

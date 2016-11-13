@@ -1,5 +1,4 @@
-#ifndef GCBRANCH_H
-#define GCBRANCH_H
+#pragma once
 
 #define GC_BRANCH 0xAA197993
 
@@ -14,4 +13,3 @@ struct gcBranch
 	unsigned int weight;
 };
 
-#endif // BRANCH_H
