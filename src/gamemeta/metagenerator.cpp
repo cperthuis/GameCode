@@ -231,6 +231,7 @@ int generateOutput(const Meta *meta, const char *outputPath, bool printResult)
 
 	int objectIndex = 0;
 	std::string vptrObjects;
+	std::string tmpObjects;
 
 	for (std::set<GenObject*, lessGenObject>::iterator it = meta->objectSet.begin(); it != meta->objectSet.end(); it++)
 	{
@@ -376,7 +377,8 @@ int generateOutput(const Meta *meta, const char *outputPath, bool printResult)
 
 		all += FORMAT_1("#include \"" OBJ_PREFIX "%s.h\"\r\n", objectName);
 
-		vptrObjects += FORMAT_1("\tnew (&_gcVptr[%i]) " OBJ_PREFIX "%s();\r\n", objectIndex, objectName);
+		vptrObjects += FORMAT_1("\tnew (vptr) " OBJ_PREFIX "%s(); _gcVptr[%i] = vptr;\r\n", objectName, objectIndex);
+		tmpObjects += FORMAT_1("\t\t" OBJ_PREFIX "%s _%s;\r\n", objectName, objectName);
 
 		objectIndex++;
 	}
@@ -399,8 +401,11 @@ int generateOutput(const Meta *meta, const char *outputPath, bool printResult)
 	vptr += "#include \"gcAll.h\"\r\n#include <new>\r\n\r\n";
 	vptr += FORMAT_1("#define GC_OBJECT_COUNT %i\r\n", objectIndex);
 	vptr += "static void* _gcVptr[GC_OBJECT_COUNT];\r\n\r\n";
-	vptr += "int gcGetObjectCount() { return GC_OBJECT_COUNT; }\r\n\r\n";;
-	vptr += "const void* const* gcInitializeVptrTable()\r\n{\r\n";
+	vptr += "namespace\r\n{\r\n\tunion GcTmpObjectsContainer {\r\n";
+	vptr += tmpObjects;
+	vptr += "\t};\r\n}\r\n\r\n";
+	vptr += "int gcGetObjectCount() { return GC_OBJECT_COUNT; }\r\n\r\n";
+	vptr += "const void* const* gcInitializeVptrTable()\r\n{\r\n\tGcTmpObjectsContainer tmp;\r\n\tvoid *vptr = (void *)&tmp;\r\n";
 	vptr += vptrObjects;
 	vptr += "\r\n\treturn _gcVptr;\r\n}\r\n";
 	
