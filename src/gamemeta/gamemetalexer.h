@@ -5,7 +5,7 @@
 
 typedef union {
 	bool bValue;
-	int iValue;
+	int64_t iValue;
 	float fValue;
 	char strValue[256];
 } yystype;

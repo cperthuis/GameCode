@@ -150,7 +150,7 @@ enumMember(M) ::= enumTag(T) EQUAL INT(X) .
 {
 	M = gmlEnumMember();
 	M->name = T;
-	M->value = X.iValue;
+	M->value = (int)(X.iValue);
 	#ifdef TRACE_PARSING
 	printf("enum tag= %s value=%i\n",M->name->value,M->value);
 	#endif
@@ -481,6 +481,26 @@ memberType(M)::= TYPEBOOL .
 	M = gmlMemberType();
 	M->type = kMemberType_BOOL;
 }
+memberType(M)::= TYPEUINT8 .
+{
+	M = gmlMemberType();
+	M->type = kMemberType_UINT8;
+}
+memberType(M)::= TYPEINT8 .
+{
+	M = gmlMemberType();
+	M->type = kMemberType_INT8;
+}
+memberType(M)::= TYPEUINT16 .
+{
+	M = gmlMemberType();
+	M->type = kMemberType_UINT16;
+}
+memberType(M)::= TYPEINT16 .
+{
+	M = gmlMemberType();
+	M->type = kMemberType_INT16;
+}
 memberType(M)::= TYPEUINT .
 {
 	M = gmlMemberType();
@@ -490,6 +510,16 @@ memberType(M)::= TYPEINT .
 {
 	M = gmlMemberType();
 	M->type = kMemberType_INT;
+}
+memberType(M)::= TYPEUINT64 .
+{
+	M = gmlMemberType();
+	M->type = kMemberType_UINT64;
+}
+memberType(M)::= TYPEINT64 .
+{
+	M = gmlMemberType();
+	M->type = kMemberType_INT64;
 }
 memberType(M)::= TYPEUFLOAT .
 {

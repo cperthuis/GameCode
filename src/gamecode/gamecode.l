@@ -68,7 +68,8 @@
 "false" { yylval->bValue=false; return GCL_BOOL; }
 
 [-]?[0-9]+\.[0-9]+ { yylval->fValue = (float)atof(yytext); return GCL_FLOAT; }
-[-]?[0-9]+ { yylval->iValue = atoi(yytext); return GCL_INT; }
+-[0-9]+ { yylval->iValue = _atoi64(yytext); return GCL_INT; }
+[0-9]+ { yylval->iValue = (int64_t)(_strtoui64(yytext,NULL,10)); return GCL_INT; }
 [a-zA-Z0-9_]+ {
 	const size_t size = sizeof(yylval->strValue);
 	strncpy(yylval->strValue, yytext, size);

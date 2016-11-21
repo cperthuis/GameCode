@@ -35,8 +35,14 @@ static unsigned int getTypeModifierMask(GmlTypeModifierType type)
 size_t _memberTypeSizes[kMemberTypeCount] =
 {
 	1, //kMemberType_BOOL,
+	1, //kMemberType_UINT8,
+	1, //kMemberType_INT8,
+	2, //kMemberType_UINT16,
+	2, //kMemberType_INT16,
 	4, //kMemberType_UINT,
 	4, //kMemberType_INT,
+	8, //kMemberType_UINT64,
+	8, //kMemberType_INT64,
 	4, //kMemberType_UFLOAT,
 	4, //kMemberType_FLOAT,
 	8, //kMemberType_FLOAT2,
@@ -51,8 +57,14 @@ size_t _memberTypeSizes[kMemberTypeCount] =
 static const char *_typeStrings[kMemberTypeCount] =
 {
 	"bool",
+	"uint8",
+	"int8",
+	"uint16",
+	"int16",
 	"uint",
 	"int",
+	"uint64",
+	"int64",
 	"ufloat",
 	"float",
 	"float2",
@@ -182,7 +194,7 @@ int createMeta(Meta *meta, const GmlItemList *itemList)
 		{
 			GmlObject *o = l->objectItem;
 			GenObject *go = new GenObject;
-			go->alignmentRequirement = 4;
+			go->alignmentRequirement = 1;
 			go->name = o->name->value;
 			go->hash = hash32(go->name);
 			go->parent = NULL;
@@ -335,10 +347,14 @@ int createMeta(Meta *meta, const GmlItemList *itemList)
 					size_t objectSize = getMemberSize(gom.type, gom.objectType, isArray, isReference);
 					
 					//align member and update object alignment
-					size_t memberAlignment = 4;
-					if (gom.type == kMemberType_BOOL)
+					size_t memberAlignment = _memberTypeSizes[gom.type];
+					if (gom.type == kMemberType_FLOAT2 || gom.type == kMemberType_FLOAT3 || gom.type == kMemberType_FLOAT4)
+						memberAlignment = 4;
+					if (gom.type == kMemberType_EXPRESSION)
 						memberAlignment = 1;
-					if (gom.modifiers & GML_TYPE_MODIFIER_ARRAY || gom.modifiers & GML_TYPE_MODIFIER_REF || gom.type == kMemberType_STRING)
+
+					if (gom.modifiers & GML_TYPE_MODIFIER_ARRAY || gom.modifiers & GML_TYPE_MODIFIER_REF || 
+						gom.type == kMemberType_STRING)
 					{
 						memberAlignment = 8;
 					}
@@ -358,7 +374,7 @@ int createMeta(Meta *meta, const GmlItemList *itemList)
 					go->alignmentRequirement = maxValue(go->alignmentRequirement, memberAlignment);
 					size_t memberOffset = go->size;
 					gom.offset = memberOffset;
-					//printf("%s: %i\n", gom.name, gom.offset);
+					//printf("%s: %llu\n", gom.name, gom.offset);
 
 					//record vtable pointers and string pointers
 					if ((gom.type == kMemberType_OBJECT) && (!((gom.modifiers & GML_TYPE_MODIFIER_ARRAY) || (gom.modifiers & GML_TYPE_MODIFIER_REF))))
@@ -431,7 +447,7 @@ int createMeta(Meta *meta, const GmlItemList *itemList)
 							}
 							else
 							{
-								value = member.defaultValue->iValue;
+								value = (int)(member.defaultValue->iValue);
 							}
 							memcpy(buffer + member.offset, &value, member.size);
 						}
@@ -466,7 +482,13 @@ int createMeta(Meta *meta, const GmlItemList *itemList)
 								}
 							}
 							else
+							{
+								//NOTE: we are assuming little endian here
+								//for integers our internal storage is int64 and we're potentially mem copying part of that int64 into
+								//a smaller type int, int16 or even int8. This has for effect to discard the high order bits since we're in 
+								//little endian, and this is what a cast would do, so it works for us.
 								memcpy(buffer + member.offset, &member.defaultValue->strValue, member.size);
+							}
 						}
 					}
 					else if (member.defaultObject)

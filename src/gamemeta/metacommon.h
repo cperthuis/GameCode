@@ -1,11 +1,19 @@
 #ifndef METACOMMON_H
 #define METACOMMON_H
 
+#include <stdint.h>
+
 enum GmlMemberTypeType
 {
 	kMemberType_BOOL,
+	kMemberType_UINT8,
+	kMemberType_INT8,
+	kMemberType_UINT16,
+	kMemberType_INT16,
 	kMemberType_UINT,
 	kMemberType_INT,
+	kMemberType_UINT64,
+	kMemberType_INT64,
 	kMemberType_UFLOAT,
 	kMemberType_FLOAT,
 	kMemberType_FLOAT2,
@@ -43,7 +51,7 @@ struct GmlValue
 	union
 	{
 		bool bValue;
-		int iValue;
+		int64_t iValue;
 		float fValue;
 		float f2Value[2];
 		float f3Value[3];

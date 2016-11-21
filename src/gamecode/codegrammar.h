@@ -20,7 +20,7 @@ struct GclValue
 	union
 	{
 		bool bValue;
-		int iValue;
+		int64_t iValue;
 		float fValue;
 		float f2Value[2];
 		float f3Value[3];
@@ -31,7 +31,7 @@ struct GclValue
 	size_t col;
 };
 GclValue *gclValue();
-GclValue *gclValue(int val);
+GclValue *gclValue(int64_t val);
 GclValue *gclValue(float val);
 GclValue *gclValue(float val, float val2);
 GclValue *gclValue(float val, float val2, float val3);
@@ -87,7 +87,7 @@ void gclFreeObjectList(GclObjectList *val);
 
 struct GclParserToken {
 	bool bValue;
-	int iValue;
+	int64_t iValue;
 	float fValue;
 	char strValue[256];
 	GenObject *metaObject;

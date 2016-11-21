@@ -17,11 +17,29 @@ const char *getTypeString(GenMember *member)
 	case kMemberType_BOOL:
 		return "bool";
 		break;
+	case kMemberType_UINT8:
+		return "uint8";
+		break;
+	case kMemberType_INT8:
+		return "int8";
+		break;
+	case kMemberType_UINT16:
+		return "uint16";
+		break;
+	case kMemberType_INT16:
+		return "int16";
+		break;
 	case kMemberType_UINT:
 		return "uint";
 		break;
 	case kMemberType_INT:
 		return "int";
+		break;
+	case kMemberType_UINT64:
+		return "uint64";
+		break;
+	case kMemberType_INT64:
+		return "int64";
 		break;
 	case kMemberType_UFLOAT:
 		return "ufloat";
@@ -66,11 +84,29 @@ const char *getCTypeString(GenMember *member, IncludeSet &objectIncludes, Includ
 	case kMemberType_BOOL:
 		return "bool ";
 		break;
+	case kMemberType_UINT8:
+		return "unsigned char ";
+		break;
+	case kMemberType_INT8:
+		return "char ";
+		break;
+	case kMemberType_UINT16:
+		return "unsigned short ";
+		break;
+	case kMemberType_INT16:
+		return "short ";
+		break;
 	case kMemberType_UINT:
 		return "unsigned int ";
 		break;
 	case kMemberType_INT:
 		return "int ";
+		break;
+	case kMemberType_UINT64:
+		return "uint64_t ";
+		break;
+	case kMemberType_INT64:
+		return "int64_t ";
 		break;
 	case kMemberType_UFLOAT:
 		return "float ";

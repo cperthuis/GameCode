@@ -298,7 +298,7 @@ member(M) ::= STRING(N) PLUSEQUAL untypedobject(O) .
 
 value(V)::= BOOL(X) .
 {
-	V = gclValue(X.bValue);
+	V = gclValue((int64_t)X.bValue);
 	V->line = extra->first_line;
 	V->col = extra->first_column;
 }

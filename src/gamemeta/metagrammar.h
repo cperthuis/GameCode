@@ -84,7 +84,7 @@ void gmlFreeType(GmlType * val);
 
 GmlValue *gmlValue();
 GmlValue *gmlValue(bool val);
-GmlValue *gmlValue(int val);
+GmlValue *gmlValue(int64_t val);
 GmlValue *gmlValue(float val);
 GmlValue *gmlValue(float val, float val2);
 GmlValue *gmlValue(float val, float val2, float val3);
@@ -134,7 +134,7 @@ void gmlFreeItemList(GmlItemList* val);
 
 struct GmlParserToken {
 	bool bValue;
-	int iValue;
+	int64_t iValue;
 	float fValue;
 	char strValue[256];
 };

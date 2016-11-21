@@ -88,7 +88,7 @@ GclValue *gclValue(bool val)
 	v->bValue = val;
 	return v;
 }
-GclValue *gclValue(int val)
+GclValue *gclValue(int64_t val)
 {
 	GclValue *v = allocate<GclValue>();
 	v->type = kValue_INT;

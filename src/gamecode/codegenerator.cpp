@@ -118,8 +118,14 @@ struct GeneratorContext
 static const char *_typeStrings[kMemberTypeCount] =
 {
 	"bool",
+	"uint8",
+	"int8",
+	"uint16",
+	"int16",
 	"uint",
 	"int",
+	"uint64",
+	"int64",
 	"ufloat",
 	"float",
 	"float2",
@@ -156,7 +162,7 @@ struct ConvertedValue
 	bool converted;
 	union
 	{
-		int intValue;
+		int64_t intValue;
 		float floatValue;
 		float floatValues[4];
 		uint64_t uint64Value;
@@ -179,13 +185,28 @@ bool checkValueType(const GclMember *member, const GenObject *objectType, const 
 	float fValue1 = value->f4Value[1];
 	float fValue2 = value->f4Value[2];
 	float fValue3 = value->f4Value[3];
-	int iValue = value->iValue;
+	int64_t iValue = value->iValue;
 	if (valueType == kValue_MINUSINF || valueType == kValue_PLUSINF)
 	{
+		if (memberType->type == kMemberType_INT8 || memberType->type == kMemberType_UINT8)
+		{
+			valueType = kValue_INT;
+			iValue = (valueType == kValue_MINUSINF ? std::numeric_limits<char>::min() : std::numeric_limits<char>::max());
+		}
+		if (memberType->type == kMemberType_INT || memberType->type == kMemberType_UINT)
+		{
+			valueType = kValue_INT;
+			iValue = (valueType == kValue_MINUSINF ? std::numeric_limits<short>::min() : std::numeric_limits<short>::max());
+		}
 		if (memberType->type == kMemberType_INT || memberType->type == kMemberType_UINT)
 		{
 			valueType = kValue_INT;
 			iValue = (valueType == kValue_MINUSINF ? std::numeric_limits<int>::min() : std::numeric_limits<int>::max());
+		}
+		if (memberType->type == kMemberType_INT64 || memberType->type == kMemberType_UINT64)
+		{
+			valueType = kValue_INT;
+			iValue = (valueType == kValue_MINUSINF ? std::numeric_limits<int64_t>::min() : std::numeric_limits<int64_t>::max());
 		}
 		else if (memberType->type == kMemberType_FLOAT || memberType->type == kMemberType_UFLOAT)
 		{
@@ -196,7 +217,10 @@ bool checkValueType(const GclMember *member, const GenObject *objectType, const 
 	
 	switch (memberType->type)
 	{
+		case kMemberType_UINT8:
+		case kMemberType_UINT16:
 		case kMemberType_UINT:
+		case kMemberType_UINT64:
 		{
 			ret = (valueType == kValue_INT && iValue >= 0);
 			if (ret)
@@ -208,7 +232,10 @@ bool checkValueType(const GclMember *member, const GenObject *objectType, const 
 				outputTypeCompatibilityError(member, objectType, memberType, context);
 			break;
 		}
+		case kMemberType_INT8:
+		case kMemberType_INT16:
 		case kMemberType_INT:
+		case kMemberType_INT64:
 		{
 			ret = (valueType == kValue_INT);
 			if (ret)
@@ -317,13 +344,12 @@ bool checkValueType(const GclMember *member, const GenObject *objectType, const 
 			break;
 		}
 		case kMemberType_EXPRESSION:
-			//ret = (valueType == kMemberType_EXPRESSION);
-			ret = (valueType == kMemberType_STRING);
+			ret = (valueType == kValue_QUOTEDSTRING);
 			if (!ret)
 				outputTypeCompatibilityError(member, objectType, memberType, context);
 			break;
 		case kMemberType_STRING:
-			ret = (valueType == kMemberType_STRING);
+			ret = (valueType == kValue_QUOTEDSTRING);
 			if (ret)
 			{
 				convertedValue->converted = true;
@@ -451,6 +477,10 @@ void setMember(GeneratorContext &context, char *buffer, const GenMember *member,
 		gcArray->_size++;
 	}
 
+	//NOTE: we are assuming little endian here
+	//for integers our internal storage is int64 and we're potentially mem copying part of that int64 into
+	//a smaller type int, int16 or even int8. This has for effect to discard the high order bits since we're in 
+	//little endian, and this is what a cast would do, so it works for us.
 	memcpy(dest, data, size);
 }
 
@@ -534,7 +564,7 @@ int convertObject(const GclObject *object, ObjectTable &globals, GeneratorContex
 			//instantiate it and add it to the list of locals, one or multiple members will probably reference it
 			int subObjectIndex = convertObject(l->object, locals, context);
 		}
-		else while (l->member) //should an if, but I want to be able to break in case of error to go to the next member
+		else while (l->member) //should be an if, but I want to be able to break in case of error to go to the next member
 		{
 			
 			const GenMember *member = l->member->memberType;

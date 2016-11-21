@@ -158,7 +158,7 @@ GmlValue *gmlValue(bool val)
 	v->bValue = val;
 	return v;
 }
-GmlValue *gmlValue(int val)
+GmlValue *gmlValue(int64_t val)
 {
 	GmlValue *v = allocate<GmlValue>();
 	v->type = kValue_INT;
