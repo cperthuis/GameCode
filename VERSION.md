@@ -1,3 +1,6 @@
+## Version 0.1.5
+Added support for 8,16 and 64 integer types: uint8,int8,uint16,int16,uint64 and int64.
+
 ## Version 0.1.4
 Fixed potential memory trash in gcInitializeVptrTable().
 Added an assert macro in gc.h that the user can define to verify that the memory patch offsets stay within the boundary of the object.
