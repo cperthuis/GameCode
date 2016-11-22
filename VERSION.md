@@ -1,5 +1,5 @@
 ## Version 0.1.6
-Arrays can now be filled with list of values in brackets in addition to the += syntax: a = [1,2,3] is equivalent to a+=1;a+=2;a+=3
+Arrays can now be filled with list of values in brackets in addition to the += syntax: a = [1,2,3] is equivalent to a+=1;a+=2;a+=3.
 Added support for hexadecimal floats and ints. An array can be set with hex values without repeating the 0x by using the syntax arrayMember = 0x[3F800000,FF,ABCDEF]
 
 ## Version 0.1.5
