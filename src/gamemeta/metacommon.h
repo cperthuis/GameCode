@@ -34,6 +34,7 @@ enum GclValueType
 {
 	kValue_BOOL,
 	kValue_INT,
+	kValue_HEX,
 	kValue_FLOAT,
 	kValue_FLOAT2,
 	kValue_FLOAT3,
@@ -42,6 +43,7 @@ enum GclValueType
 	kValue_MINUSINF,
 	kValue_STRING,
 	kValue_QUOTEDSTRING,
+	kValue_VALUELIST,
 	kValueTypeCount
 };
 

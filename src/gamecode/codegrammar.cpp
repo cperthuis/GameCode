@@ -95,6 +95,13 @@ GclValue *gclValue(int64_t val)
 	v->iValue = val;
 	return v;
 }
+GclValue *gclValueHex(uint64_t val)
+{
+	GclValue *v = allocate<GclValue>();
+	v->type = kValue_HEX;
+	v->iValue = (int64_t)val;
+	return v;
+}
 GclValue *gclValue(float val)
 {
 	GclValue *v = allocate<GclValue>();
@@ -141,6 +148,13 @@ GclValue *gclValue(GclValueType type, const char *val)
 	v->type = type;
 	strncpy(v->strValue, val, sizeof(v->strValue));
 	v->strValue[sizeof(v->strValue) - 1] = 0;
+	return v;
+}
+GclValue *gclValue(GclValueList *val)
+{
+	GclValue *v = allocate<GclValue>();
+	v->type = kValue_VALUELIST;
+	v->listValue = val;
 	return v;
 }
 void gclFreeValue(GclValue *val)
@@ -199,3 +213,15 @@ void gclFreeObjectList(GclObjectList *val)
 		gclFreeObjectList(next);
 }
 
+GclValueList *gclValueList()
+{
+	return allocate<GclValueList>();
+}
+void gclFreeValueList(GclValueList *val)
+{
+	GclValueList *next = val->next;
+	if (val->value) gclFreeValue(val->value);
+	deallocate<GclValueList>(val);
+	if (next)
+		gclFreeValueList(next);
+}

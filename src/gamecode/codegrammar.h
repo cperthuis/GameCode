@@ -6,6 +6,8 @@
 struct GenObject;
 struct GenMember;
 
+struct GclValueList;
+
 struct GclString
 {
 	char value[256];
@@ -26,18 +28,22 @@ struct GclValue
 		float f3Value[3];
 		float f4Value[4];
 		char strValue[256];
+		GclValueList *listValue;
 	};
 	size_t line;
 	size_t col;
 };
 GclValue *gclValue();
 GclValue *gclValue(int64_t val);
+GclValue *gclValueHex(uint64_t val);
 GclValue *gclValue(float val);
 GclValue *gclValue(float val, float val2);
 GclValue *gclValue(float val, float val2, float val3);
 GclValue *gclValue(float val, float val2, float val3, float val4);
 GclValue *gclValue(GclValueType type);
 GclValue *gclValue(GclValueType type, const char *val);
+GclValue *gclValue(GclValueList* val);
+
 void gclFreeValue(GclValue* val);
 
 struct GclObject;
@@ -84,6 +90,15 @@ struct GclObjectList
 };
 GclObjectList *gclObjectList();
 void gclFreeObjectList(GclObjectList *val);
+
+struct GclValueList
+{
+	GclValue *value;
+	GclValueList *parent;
+	GclValueList *next;
+};
+GclValueList *gclValueList();
+void gclFreeValueList(GclValueList *val);
 
 struct GclParserToken {
 	bool bValue;

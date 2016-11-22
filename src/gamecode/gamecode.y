@@ -43,6 +43,9 @@
 %type		value3f{ GclValue* }
 %destructor	value3f{ gclFreeValue($$); }
 
+%type		valueList{ GclValueList* }
+%destructor	valueList{ gclFreeValueList($$); }
+
 start ::= objectList(L).
 {
 	//reverse the list which was built backward due to the recommended stack optimization
@@ -308,6 +311,18 @@ value(V)::= INT(X) .
 	V->line = extra->first_line;
 	V->col = extra->first_column;
 }
+value(V)::= HEX(X) .
+{
+	V = gclValueHex((uint64_t)X.iValue);
+	V->line = extra->first_line;
+	V->col = extra->first_column;
+}
+value(V)::= FLOAT(X) .
+{
+	V = gclValue(X.fValue);
+	V->line = extra->first_line;
+	V->col = extra->first_column;
+}
 
 value(V)::= FLOAT(X) value3f(V1) .
 {
@@ -379,12 +394,7 @@ value(V)::= value2f(V1) .
 	V->col = extra->first_column;
 }
 
-value(V)::= FLOAT(X) .
-{
-	V = gclValue(X.fValue);
-	V->line = extra->first_line;
-	V->col = extra->first_column;
-}
+
 value(V)::= PLUSINF .
 {
 	V = gclValue(kValue_PLUSINF);
@@ -408,4 +418,55 @@ value(V)::= STRING(X).
 	V = gclValue(kValue_STRING, X.strValue);
 	V->line = extra->first_line;
 	V->col = extra->first_column;
+}
+
+value(V)::= BEGINARRAY valueList(X) ENDARRAY .
+{
+	V = gclValue(X);
+	V->line = extra->first_line;
+	V->col = extra->first_column;
+}
+
+valueList(L) ::= valueList(L0) INT(X) .
+{
+	L = gclValueList();
+	L->value = gclValue(X.iValue);
+	L->next = 0;
+	L->parent = L0;
+	L0->next = L;
+}
+
+valueList(L) ::= valueList(L0) HEX(X) .
+{
+	L = gclValueList();
+	L->value = gclValueHex(X.iValue);
+	L->next = 0;
+	L->parent = L0;
+	L0->next = L;
+}
+
+valueList(L) ::= valueList(L0) FLOAT(X) .
+{
+	L = gclValueList();
+	L->value = gclValue(X.fValue);
+	L->next = 0;
+	L->parent = L0;
+	L0->next = L;
+}
+
+valueList(L) ::= valueList(L0) BOOL(X) .
+{
+	L = gclValueList();
+	L->value = gclValue((int64_t)X.bValue);
+	L->next = 0;
+	L->parent = L0;
+	L0->next = L;
+}
+
+valueList(L) ::= .
+{
+	L = gclValueList();
+	L->value = 0;
+	L->next = 0;
+	L->parent = 0;
 }

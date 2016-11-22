@@ -14,6 +14,7 @@
 %x SINGLELINE_COMMENT
 %x MULTILINE_COMMENT
 %x EXPRESSION
+%x HEX_ARRAY
 
 %{
 #define YY_USER_ACTION yyextra->first_line = yylineno; yyextra->last_line = yylineno; \
@@ -64,8 +65,17 @@
 <DOUBLE_QUOTED>\n			{ yyextra->col = 0; ++yyextra->line; strcat(yylval->strValue, "\n");}
 <DOUBLE_QUOTED>["]			{ BEGIN(INITIAL); return GCL_STRINGVALUE; }
 
+"0x["						{ BEGIN(HEX_ARRAY); return GCL_BEGINARRAY; }
+<HEX_ARRAY>[0-9a-fA-F]+		{ yylval->iValue = (int64_t)(_strtoui64(yytext,NULL,16)); return GCL_HEX; }
+<HEX_ARRAY>"]"				{ BEGIN(INITIAL); return GCL_ENDARRAY; }
+
+"["							{ return GCL_BEGINARRAY; }
+"]"							{ return GCL_ENDARRAY; }
+
 "true" { yylval->bValue=true; return GCL_BOOL; }
 "false" { yylval->bValue=false; return GCL_BOOL; }
+
+0[xX][0-9a-fA-F]+ { yylval->iValue = (int64_t)(_strtoui64(yytext+2,NULL,16)); return GCL_HEX; }
 
 [-]?[0-9]+\.[0-9]+ { yylval->fValue = (float)atof(yytext); return GCL_FLOAT; }
 -[0-9]+ { yylval->iValue = _atoi64(yytext); return GCL_INT; }

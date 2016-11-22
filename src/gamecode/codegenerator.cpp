@@ -151,9 +151,8 @@ static const char *_valueTypeStrings[kValueTypeCount] =
 	"string"
 };
 
-void outputTypeCompatibilityError(const GclMember *member, const GenObject *objectType, const GenMember *memberType, GeneratorContext &context)
+void outputTypeCompatibilityError(const GclValue *value, const GenObject *objectType, const GenMember *memberType, GeneratorContext &context)
 {
-	GclValue *value = member->value;
 	printf("%s(%i,%i): Error: value of type %s expected for property %s::%s, type %s is invalid\n", context.filename, (int)value->line, (int)value->col, _typeStrings[memberType->type], objectType->name, memberType->name, _valueTypeStrings[value->type]);
 }
 
@@ -169,9 +168,8 @@ struct ConvertedValue
 	};
 };
 
-bool checkValueType(const GclMember *member, const GenObject *objectType, const GenMember *memberType, GeneratorContext &context, ConvertedValue* convertedValue)
+bool checkValueType(const GclValue *value, const GenObject *objectType, const GenMember *memberType, GeneratorContext &context, ConvertedValue* convertedValue)
 {
-	GclValue *value = member->value;
 	if (convertedValue)
 	{
 		convertedValue->converted = false;
@@ -222,14 +220,14 @@ bool checkValueType(const GclMember *member, const GenObject *objectType, const 
 		case kMemberType_UINT:
 		case kMemberType_UINT64:
 		{
-			ret = (valueType == kValue_INT && iValue >= 0);
+			ret = ((valueType == kValue_INT || valueType == kValue_HEX) && iValue >= 0);
 			if (ret)
 			{
 				convertedValue->converted = true;
 				convertedValue->intValue = iValue;
 			}
 			else
-				outputTypeCompatibilityError(member, objectType, memberType, context);
+				outputTypeCompatibilityError(value, objectType, memberType, context);
 			break;
 		}
 		case kMemberType_INT8:
@@ -237,43 +235,43 @@ bool checkValueType(const GclMember *member, const GenObject *objectType, const 
 		case kMemberType_INT:
 		case kMemberType_INT64:
 		{
-			ret = (valueType == kValue_INT);
+			ret = (valueType == kValue_INT || valueType == kValue_HEX);
 			if (ret)
 			{
 				convertedValue->converted = true;
 				convertedValue->intValue = iValue;
 			}
 			else
-				outputTypeCompatibilityError(member, objectType, memberType, context);
+				outputTypeCompatibilityError(value, objectType, memberType, context);
 			break;
 		}
 		case kMemberType_UFLOAT:
 		{
-			ret = (valueType == kValue_INT && iValue >= 0) || (valueType == kValue_FLOAT && fValue >= 0);
-			if (ret)
-			{
-				convertedValue->converted = true;
-				convertedValue->floatValue = valueType == kValue_FLOAT ? fValue : (float)iValue;
-			}
-			else
-				outputTypeCompatibilityError(member, objectType, memberType, context);
-			break;
-		}
-		case kMemberType_FLOAT:
-		{
-			ret = (valueType == kValue_INT || valueType == kValue_FLOAT);
+			ret = (valueType == kValue_INT && iValue >= 0) || ((valueType == kValue_FLOAT || valueType == kValue_HEX) && fValue >= 0);
 			if (ret)
 			{
 				convertedValue->converted = true;
 				convertedValue->floatValue = valueType == kValue_INT ? (float)iValue : fValue;
 			}
 			else
-				outputTypeCompatibilityError(member, objectType, memberType, context);
+				outputTypeCompatibilityError(value, objectType, memberType, context);
+			break;
+		}
+		case kMemberType_FLOAT:
+		{
+			ret = (valueType == kValue_INT || (valueType == kValue_FLOAT || valueType == kValue_HEX));
+			if (ret)
+			{
+				convertedValue->converted = true;
+				convertedValue->floatValue = valueType == kValue_INT ? (float)iValue : fValue;
+			}
+			else
+				outputTypeCompatibilityError(value, objectType, memberType, context);
 			break;
 		}
 		case kMemberType_FLOAT2:
 		{
-			ret = (valueType == kValue_FLOAT || valueType == kValue_INT || valueType == kValue_FLOAT2);
+			ret = ((valueType == kValue_FLOAT || valueType == kValue_HEX )|| valueType == kValue_INT || valueType == kValue_FLOAT2);
 			if (ret)
 			{
 				if (valueType == kValue_FLOAT2)
@@ -290,12 +288,12 @@ bool checkValueType(const GclMember *member, const GenObject *objectType, const 
 				}
 			}
 			else
-				outputTypeCompatibilityError(member, objectType, memberType, context);
+				outputTypeCompatibilityError(value, objectType, memberType, context);
 			break;
 		}
 		case kMemberType_FLOAT3:
 		{
-			ret = (valueType == kValue_FLOAT || valueType == kValue_INT || valueType == kValue_FLOAT3);
+			ret = ((valueType == kValue_FLOAT || valueType == kValue_HEX) || valueType == kValue_INT || valueType == kValue_FLOAT3);
 			if (ret)
 			{
 				convertedValue->converted = true;
@@ -314,12 +312,12 @@ bool checkValueType(const GclMember *member, const GenObject *objectType, const 
 				}
 			}
 			else
-				outputTypeCompatibilityError(member, objectType, memberType, context);
+				outputTypeCompatibilityError(value, objectType, memberType, context);
 			break;
 		}
 		case kMemberType_FLOAT4:
 		{
-			ret = (valueType == kValue_FLOAT || valueType == kValue_INT || valueType == kValue_FLOAT4);
+			ret = ((valueType == kValue_FLOAT || valueType == kValue_HEX) || valueType == kValue_INT || valueType == kValue_FLOAT4);
 			if (ret)
 			{
 				convertedValue->converted = true;
@@ -340,13 +338,13 @@ bool checkValueType(const GclMember *member, const GenObject *objectType, const 
 				}
 			}
 			else
-				outputTypeCompatibilityError(member, objectType, memberType, context);
+				outputTypeCompatibilityError(value, objectType, memberType, context);
 			break;
 		}
 		case kMemberType_EXPRESSION:
 			ret = (valueType == kValue_QUOTEDSTRING);
 			if (!ret)
-				outputTypeCompatibilityError(member, objectType, memberType, context);
+				outputTypeCompatibilityError(value, objectType, memberType, context);
 			break;
 		case kMemberType_STRING:
 			ret = (valueType == kValue_QUOTEDSTRING);
@@ -356,12 +354,12 @@ bool checkValueType(const GclMember *member, const GenObject *objectType, const 
 				convertedValue->uint64Value = context.stringTable.allocateString(value->strValue);
 			}
 			else 
-				outputTypeCompatibilityError(member, objectType, memberType, context);
+				outputTypeCompatibilityError(value, objectType, memberType, context);
 			break;
 		case kMemberType_OBJECT:
 			ret = (valueType == kMemberType_ENUM || valueType == kMemberType_OBJECT);
 			if (!ret)
-				outputTypeCompatibilityError(member, objectType, memberType, context);
+				outputTypeCompatibilityError(value, objectType, memberType, context);
 			break;
 		case kMemberType_ENUM:
 		{
@@ -457,7 +455,30 @@ void setMember(GeneratorContext &context, char *buffer, const GenMember *member,
 			while (l)
 			{
 				if (l->member)
-					count += (l->member->memberType == member) ? 1 : 0;
+				{
+					if (l->member->memberType == member)
+					{
+						if (l->member->value == NULL)
+							count++;
+						else
+						{
+							if (l->member->value->type != kValue_VALUELIST)
+							{
+								count++;
+							}
+							else
+							{
+								GclValueList *valueList = l->member->value->listValue;
+								valueList = valueList->parent;
+								while (valueList)
+								{
+									count++;
+									valueList = valueList->parent;
+								}
+							}
+						}
+					}
+				}
 				l = l->next;
 			}
 			char *buffer = (char*)_allocator->allocate(count * size);
@@ -585,23 +606,64 @@ int convertObject(const GclObject *object, ObjectTable &globals, GeneratorContex
 					if (!value)
 					{
 						errorCount++;
-						printf("%s(%i,%i): Error: expected a value of type %s but object given\n", context.filename, (int)l->member->value->line, (int)l->member->value->col,_typeStrings[type]);
+						printf("%s(%i,%i): Error: expected a value of type %s not an object\n", context.filename, (int)l->member->value->line, (int)l->member->value->col,_typeStrings[type]);
 						break;
 					}
 					
-					ConvertedValue convertedValue;
-					memset(&convertedValue, 0, sizeof(convertedValue));
-					bool valid = checkValueType(l->member, objectType, member, context, &convertedValue);
-					if (!valid)
+					if (value->type == kValue_VALUELIST)
 					{
-						errorCount++;
-						break;
+						if ((member->modifiers & GML_TYPE_MODIFIER_ARRAY) == 0)
+						{
+							errorCount++;
+							printf("%s(%i,%i): Error: expected a value of type %s not an array\n", context.filename, (int)l->member->value->line, (int)l->member->value->col, _typeStrings[type]);
+							break;
+						}
+
+						GclValueList *valueList = value->listValue; 
+						if (valueList)
+						{
+							//values are recorded backward, inverse the list
+							while (valueList->parent)
+								valueList = valueList->parent;
+							//first element is empty, skip
+							valueList = valueList->next;
+							while (valueList)
+							{
+								GclValue *value0 = valueList->value;
+								ConvertedValue convertedValue;
+								memset(&convertedValue, 0, sizeof(convertedValue));
+								bool valid = checkValueType(value0, objectType, member, context, &convertedValue);
+								if (!valid)
+								{
+									errorCount++;
+									break;
+								}
+
+								if (convertedValue.converted)
+									setMember(context, buffer, member, l, l->member, &convertedValue.intValue); //memcpy(buffer + member->offset, &convertedValue.intValue, member->size);
+								else
+									setMember(context, buffer, member, l, l->member, value0->strValue); //memcpy(buffer + member->offset, value->strValue, member->size);
+
+								valueList = valueList->next;
+							}
+						}
 					}
-					
-					if (convertedValue.converted)
-						setMember(context, buffer, member, l, l->member, &convertedValue.intValue); //memcpy(buffer + member->offset, &convertedValue.intValue, member->size);
 					else
-						setMember(context, buffer, member, l, l->member, value->strValue); //memcpy(buffer + member->offset, value->strValue, member->size);
+					{
+						ConvertedValue convertedValue;
+						memset(&convertedValue, 0, sizeof(convertedValue));
+						bool valid = checkValueType(value, objectType, member, context, &convertedValue);
+						if (!valid)
+						{
+							errorCount++;
+							break;
+						}
+
+						if (convertedValue.converted)
+							setMember(context, buffer, member, l, l->member, &convertedValue.intValue); //memcpy(buffer + member->offset, &convertedValue.intValue, member->size);
+						else
+							setMember(context, buffer, member, l, l->member, value->strValue); //memcpy(buffer + member->offset, value->strValue, member->size);
+					}
 				}
 				else
 				{
