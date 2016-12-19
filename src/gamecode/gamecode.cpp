@@ -324,6 +324,53 @@ void readFolder(std::vector<std::string> &files, std::string &sourceFolder, std:
 	sourceFolder.resize(len); //sourceFolder
 }
 
+int readInputFiles(std::vector<std::string> &files, const char *inputsFullpath)
+{
+	FILE *fp = fopen(inputsFullpath, "rb");
+	if (!fp)
+	{
+		printf("error couldn't open %s\n", inputsFullpath);
+		return 255;
+	}
+
+	fseek(fp, 0, SEEK_END);
+	int size = ftell(fp);
+	fseek(fp, 0, SEEK_SET);
+	char *inputList = NULL;
+	if (size)
+	{
+		inputList = new char[size + 1];
+		fread(inputList, size, 1, fp);
+		inputList[size] = 0;
+	}
+	fclose(fp);
+	char *p = inputList;
+	while (*p)
+	{
+		//trim head
+		char *p0 = p;
+		char c = *p0;
+		while (c && c == ' ' || c == '\t' || c == '\r' || c == '\n') { c = *(++p0); }
+		if (!c)
+			break;
+
+		//find end
+		p = p0;
+		while (c && c != '\n') { c = *(++p); }
+
+		//trim tail
+		char *p2 = p;
+		while (c == '\n' || c == ' ' || c == '\t' || c == '\r') { c = *(--p2); }
+		if (c) { p2++; *p2 = 0; }
+
+		files.push_back(p0);
+	}
+
+	delete[] inputList;
+
+	return 0;
+}
+
 char gExePath[MAX_PATH];
 
 int main(int argc, char *argv[])
@@ -371,6 +418,8 @@ int main(int argc, char *argv[])
 	char outputFullpath[MAX_PATH];
 	outputFullpath[0] = 0;
 	
+	char inputsFullpath[MAX_PATH];
+	inputsFullpath[0] = 0;
 
 	bool dataCompilationMode = (argc == 1);
 	bool forceGenerateCode = (argc == 1);
@@ -427,6 +476,16 @@ int main(int argc, char *argv[])
 			compileFolder = true;
 			dataCompilationMode = true;
 		}
+		else if (strcmp(argv[i], "-i") == 0)
+		{
+			i++;
+			if (i < argc)
+			{
+				forceGenerateCode = true;
+				dataCompilationMode = true;
+				GetFullPathNameA(argv[i], sizeof(inputsFullpath), inputsFullpath, NULL);
+			}
+		}
 		else if (strcmp(argv[i], "-r") == 0)
 		{
 			compileFolderRecursive = true;
@@ -457,7 +516,7 @@ int main(int argc, char *argv[])
 		char fname[_MAX_FNAME];
 		char ext[_MAX_EXT];
 
-		if (!compileFolder)
+		if (!compileFolder && inputsFullpath[0] == 0)
 		{
 			if (outputFullpath[0] == 0)
 			{
@@ -469,9 +528,20 @@ int main(int argc, char *argv[])
 		else
 		{
 			std::vector<std::string> files;
+			if (inputsFullpath[0] == 0)
+			{
 			std::string sourceFolder = sourceFolderPath;
 			std::string relativeFolder;
 			readFolder(files, sourceFolder, relativeFolder, compileFolderRecursive);
+			}
+			else
+			{
+				readInputFiles(files, inputsFullpath);
+				
+				//filepath can be relative in the filelist, in that case they are relative to the folder passed if any was passed.
+				if (compileFolder) 
+					SetCurrentDirectory(sourceFolderPath);
+			}
 
 			size_t count = files.size();
 			for (size_t i = 0; i < count; i++)
