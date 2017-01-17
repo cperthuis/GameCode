@@ -1077,6 +1077,13 @@ char* serializeOutput(GeneratorContext &context, size_t *size)
 		{
 			const std::vector<size_t> &strPtrOffsets = dataObject.object->typeObject->strPtrOffsets;
 			writeStringPatch(strPtrOffsets, dataObject.buffer, objectsRelativeOffset, stringTableObjectOffset, previousStringPointer);
+			GenObject *parent = dataObject.object->typeObject->parent;
+			while (parent)
+			{
+				const std::vector<size_t> &strPtrOffsets = parent->strPtrOffsets;
+				writeStringPatch(strPtrOffsets, dataObject.buffer, objectsRelativeOffset, stringTableObjectOffset, previousStringPointer);
+				parent = parent->parent;
+			}
 		}
 		else if (dataObject.gcArray)
 		{
