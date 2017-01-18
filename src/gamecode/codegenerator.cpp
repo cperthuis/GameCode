@@ -220,7 +220,7 @@ bool checkValueType(const GclValue *value, const GenObject *objectType, const Ge
 		case kMemberType_UINT:
 		case kMemberType_UINT64:
 		{
-			ret = ((valueType == kValue_INT || valueType == kValue_HEX) && iValue >= 0);
+			ret = ((valueType == kValue_INT || valueType == kValue_HEX) && (memberType->type == kMemberType_UINT64 || iValue >= 0));
 			if (ret)
 			{
 				convertedValue->converted = true;
