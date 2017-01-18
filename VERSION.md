@@ -1,7 +1,10 @@
+## Version 0.1.8
+Fixed uint64 type checking for uint64s with the high bit set
+Fixed missing error exit code in case of error during the code generation step such as a type incompatibility
+
 ## Version 0.1.7
 Fixed missing pointer patching for strings in parent classes
 Added option to read a list of input files. the file paths can be absolute or relative to a root folder. syntax: -i listFile [-f rootFolder]
-
 
 ## Version 0.1.6
 Arrays can now be filled with list of values in brackets in addition to the += syntax: a = [1,2,3] is equivalent to a+=1;a+=2;a+=3.
