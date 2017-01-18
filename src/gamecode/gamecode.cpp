@@ -523,7 +523,7 @@ int main(int argc, char *argv[])
 				_splitpath(inputFullpath, drive, dir, fname, ext);
 				sprintf(outputFullpath, "%s\\%s.gcb", outputFolderFullpath, fname);
 			}
-			compileFile(inputFullpath, &meta, outputFullpath);
+			ret = compileFile(inputFullpath, &meta, outputFullpath);
 		}
 		else
 		{
@@ -552,7 +552,7 @@ int main(int argc, char *argv[])
 					sprintf(outputFullpath, "%s\\%s.gcb", outputFolderFullpath, fname);
 				else
 					sprintf(outputFullpath, "%s\\%s\\%s.gcb", outputFolderFullpath, dir, fname);
-				compileFile(filepath, &meta, outputFullpath);
+				ret |= compileFile(filepath, &meta, outputFullpath);
 			}
 		}
 	}
