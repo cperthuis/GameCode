@@ -6,5 +6,5 @@ The user defines object types in a meta file and objects in content files. The m
 ## FAQ
 * Do I have to include the license in a binary distribution?
 No.
-* Should I use the gamecode.exe available in the Release packages or should I recompile it myself?
-I am doing my best to make sure that it's safe and doesn't contain any threat but I recommend to recompile it yourself.
+* Should I use the gamecode.exe available in the Release package or should I recompile it myself?
+I am doing my best to make sure that it doesn't contain any threat but I recommend to recompile it yourself, this is provided as is. It's compiled for x64 with VS2015 Update 3.
